@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Aktivity – Finančné plánovanie</title>
+<style>
+:root{
+  --bg:#f3f6fa; --surface:#ffffff; --surface2:#eef3f9; --ink:#0b1f3a; --ink2:#4a5b73; --line:#d6dfea;
+  --accent:#1565c0; --accent-ink:#ffffff; --accent-soft:#e3eefb;
+  --ok:#1b7f3b; --ok-soft:#e5f5ea; --bad:#b3261e; --bad-soft:#fdeceb; --warn:#9a6700; --warn-soft:#fff4d6;
+  --radius:14px; --shadow:0 1px 2px rgba(11,31,58,.06),0 4px 14px rgba(11,31,58,.06);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1520; --surface:#16212f; --surface2:#1c2a3b; --ink:#e8eef6; --ink2:#a6b4c6; --line:#2a3a4f;
+  --accent:#6aa9f0; --accent-ink:#0b1f3a; --accent-soft:#1d3350;
+  --ok:#6fd08c; --ok-soft:#183324; --bad:#f2948d; --bad-soft:#3a1d1b; --warn:#f0c25a; --warn-soft:#3a2f12;
+  --shadow:none;
+}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input{font:inherit;color:inherit}
+.wrap{max-width:760px;margin:0 auto;padding:16px 16px 64px}
+header.top{background:var(--ink);color:#fff;padding:14px 16px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) header.top{background:#0a1018}}
+header.top .in{max-width:760px;margin:0 auto;display:flex;gap:12px;align-items:center}
+header.top .plane{font-size:22px}
+header.top small{display:block;opacity:.75;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+header.top b{font-size:16px;line-height:1.25}
+h1{font-size:22px;line-height:1.25;margin:4px 0 8px}
+h2{font-size:18px;margin:20px 0 8px}
+p{margin:6px 0}
+.muted{color:var(--ink2)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:10px 0;box-shadow:var(--shadow)}
+.tile{display:flex;gap:12px;align-items:center;width:100%;text-align:left;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:10px 0;box-shadow:var(--shadow)}
+.tile:hover{border-color:var(--accent)}
+.num{flex:none;width:40px;height:40px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700}
+.tile .meta{font-size:13px;color:var(--ink2)}
+.done-badge{margin-left:auto;font-size:13px;font-weight:600;color:var(--ok);white-space:nowrap}
+.pill{display:inline-block;font-size:12px;padding:2px 9px;border-radius:99px;background:var(--surface2);color:var(--ink2);margin:0 4px 4px 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-weight:600}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.small{min-height:36px;padding:6px 12px;font-size:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.back{background:none;border:none;color:var(--accent);cursor:pointer;padding:8px 0;font-weight:600}
+details.theory{background:var(--accent-soft);border-radius:10px;padding:10px 12px;margin:10px 0}
+details.theory summary{cursor:pointer;font-weight:600;color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{min-height:40px;padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--surface2);cursor:pointer;font-size:14px}
+.chip.sel{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.chip.right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:600}
+.chip.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);text-decoration:line-through}
+.item.ok{border-color:var(--ok)} .item.ko{border-color:var(--bad)}
+.fb{margin-top:8px;padding:8px 10px;border-radius:8px;font-size:14px}
+.fb.ok{background:var(--ok-soft)} .fb.ko{background:var(--bad-soft)} .fb.mid{background:var(--warn-soft)}
+.src{font-size:12px;color:var(--ink2);margin-top:4px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+.tbl{overflow-x:auto;margin:8px 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:var(--surface2)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.kpis{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.kpi{background:var(--surface2);border-radius:10px;padding:6px 10px;font-size:13px}
+.kpi b{display:block;font-size:17px;font-variant-numeric:tabular-nums}
+.opt{display:block;width:100%;text-align:left;min-height:48px;margin:8px 0;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.chosen{border-color:var(--accent);background:var(--accent-soft);font-weight:600}
+.opt:disabled{cursor:default}
+.pts{font-weight:700}
+.order li{display:flex;align-items:center;gap:8px;list-style:none;margin:8px 0}
+.order ol{padding:0;margin:0}
+.order .txt{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.order .txt.ok{border-color:var(--ok);background:var(--ok-soft)} .order .txt.ko{border-color:var(--bad);background:var(--bad-soft)}
+.order .mv{display:flex;flex-direction:column;gap:4px}
+.order .mv button{width:40px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--surface2);cursor:pointer}
+input[type=text]{width:100%;max-width:220px;min-height:44px;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface)}
+.alloc{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;margin:10px 0}
+.alloc input[type=range]{grid-column:1/3;width:100%;accent-color:var(--accent);height:28px}
+.alloc .pct{font-weight:700;font-variant-numeric:tabular-nums}
+.sum{font-weight:700}
+.sum.bad{color:var(--bad)} .sum.good{color:var(--ok)}
+.score{font-size:28px;font-weight:800;color:var(--accent)}
+.menti{border:2px dashed var(--accent);background:var(--accent-soft);border-radius:var(--radius);padding:14px;margin:14px 0}
+.menti .code{font-size:24px;font-weight:800;letter-spacing:.08em}
+.big{font-size:20px;font-weight:700}
+svg.chart{width:100%;height:auto;display:block}
+.progress{height:6px;background:var(--surface2);border-radius:99px;overflow:hidden;margin:8px 0}
+.progress span{display:block;height:100%;background:var(--accent)}
+footer{font-size:12px;color:var(--ink2);text-align:center;margin-top:28px}
+</style>
+</head>
+<body>
+<header class="top"><div class="in"><span class="plane" aria-hidden="true">✈</span><div><small id="hdr-sub"></small><b id="hdr-title"></b></div></div></header>
+<main class="wrap" id="app"></main>
+<script id="lesson-data" type="application/json">
+{
+  "predmet": "Finančné plánovanie",
+  "tema_cislo": 11,
+  "tema": "Investície, investičné rozhodovanie a hodnotenie investičných projektov",
+  "kontext": "Regionálne letisko pripravuje investičný plán na roky 2027–2036. Na stole je nový hangár na údržbu lietadiel externých dopravcov, fotovoltická elektráreň a niekoľko povinných projektov. Dnes ste jeho finančný tím: roztriedite projekty, vypočítate peňažné toky, rozhodnete v investičnej komisii a nakoniec budete spravovať rezervu letiska.",
+  "url": "",
+  "menti_kod": "",
+  "ciele_hodiny": [
+    "Rozlíšiť rozvojové, obnovovacie a mandatórne investície na príkladoch z letiska.",
+    "Zostaviť kapitálový výdavok (K = I + O − P ± D) a ročný peňažný príjem projektu bez chýb s utopenými nákladmi, odpismi a úrokmi.",
+    "Vybrať z vylučujúcich sa projektov podľa NPV a vysvetliť, prečo doba návratnosti môže zavádzať.",
+    "Zohľadniť riziko, likviditu a výnos (magický trojuholník) pri rozhodovaní o voľných prostriedkoch."
+  ],
+  "aktivity": [
+    {
+      "id": "a1",
+      "nazov": "Investičný zásobník letiska",
+      "typ": "triedenie",
+      "minuty": 10,
+      "forma": "dvojice",
+      "ciel": "Zaradiť reálne projekty letiska podľa vzťahu k rozvoju podniku.",
+      "zadanie": "Riaditeľ dostal 8 investičných žiadostí. Zaraďte každú medzi rozvojové, obnovovacie alebo mandatórne investície – od toho závisí ich priorita aj miera rizika.",
+      "teoria": "Rozvojové investície rozširujú kapacitu a hodnotu majetku (rizikovejšie). Obnovovacie nahrádzajú opotrebovaný majetok novým s rovnakým účelom (málo rizikové, často znižujú náklady). Mandatórne (regulátorné) sa musia realizovať kvôli legislatíve – bezpečnosť, hygiena, ekológia – aj bez priameho peňažného prínosu.",
+      "prakticky_prinos": "Takto sa triedi investičný zásobník v rozpočte každého letiska: mandatórne projekty idú prvé (bez nich letisko nesmie prevádzkovať), obnovovacie držia prevádzku v chode a o rozvojových sa rozhoduje podľa efektívnosti a voľného kapitálu.",
+      "zdroje": ["Prednáška Investície, sl. 6 a 25"],
+      "debrief": [
+        "Prečo sa mandatórna investícia nehodnotí podľa NPV ako ostatné?",
+        "Výmena svietidiel za LED šetrí náklady – prečo je to stále obnovovacia, a nie rozvojová investícia?"
+      ],
+      "poznamky": "0–1 min zadanie a QR. 1–6 min triedenie vo dvojiciach. 6–8 min Mentimeter (2 kvízové otázky – položky 5 a 8 sú najzradnejšie). 8–10 min riešenie. Typická chyba: hasičské vozidlo študenti dávajú do mandatórnych, lebo hasičská služba je povinná – povinná je služba, investícia však nahrádza dosluhujúci majetok s rovnakým účelom.",
+      "menti": [
+        { "typ": "Quiz – výber odpovede", "otazka": "Nové hasičské vozidlo namiesto 20-ročného je investícia…", "moznosti": ["rozvojová", "obnovovacia", "mandatórna"], "spravna": "obnovovacia", "poznamka": "časovač 20 s" },
+        { "typ": "Quiz – výber odpovede", "otazka": "Výmena svietidiel dráhy za LED (rovnaká funkcia, nižšia spotreba) je investícia…", "moznosti": ["rozvojová", "obnovovacia", "mandatórna"], "spravna": "obnovovacia", "poznamka": "časovač 20 s" }
+      ],
+      "data": {
+        "kategorie": ["Rozvojová", "Obnovovacia", "Mandatórna"],
+        "polozky": [
+          { "text": "Výstavba nového hangáru na údržbu lietadiel externých dopravcov", "spravne": "Rozvojová", "vysvetlenie": "Letisko získa novú činnosť a nové tržby – rozširuje hodnotu majetku aj kapacitu. Rozvojové projekty sú rizikovejšie, lebo dopyt nie je istý.", "zdroj": "Prednáška Investície, sl. 25" },
+          { "text": "Výmena 25-ročných nástupných mostov za nové rovnakého typu", "spravne": "Obnovovacia", "vysvetlenie": "Opotrebovaný majetok sa nahrádza novým s rovnakým účelom – prostá reprodukcia.", "zdroj": "Prednáška Investície, sl. 6" },
+          { "text": "Zachytávanie glykolu na odmrazovacej ploche podľa nových environmentálnych pravidiel EÚ", "spravne": "Mandatórna", "vysvetlenie": "Vyvolaná legislatívou (ekologické požiadavky EÚ). Neprináša priamy peňažný tok, ale bez nej by letisko nesmelo odmrazovať.", "zdroj": "Prednáška Investície, sl. 25" },
+          { "text": "Nový skener príručnej batožiny vyžadovaný nariadením EÚ o bezpečnosti letectva", "spravne": "Mandatórna", "vysvetlenie": "Regulátorná investícia – zabezpečuje ďalšie fungovanie (bezpečnosť), nie rast tržieb.", "zdroj": "Prednáška Investície, sl. 6" },
+          { "text": "Nové hasičské vozidlo namiesto 20-ročného, ktoré dosluhuje", "spravne": "Obnovovacia", "vysvetlenie": "Lákavá chyba: hasičská služba je povinná, ale táto investícia len nahrádza opotrebovaný majetok s rovnakým účelom. Mandatórna by bola, keby nový predpis vyžadoval vozidlo navyše.", "zdroj": "Prednáška Investície, sl. 25" },
+          { "text": "Parkovací dom, ktorý zvýši kapacitu parkovania o 600 miest", "spravne": "Rozvojová", "vysvetlenie": "Zvyšuje schopnosť letiska predávať služby (nové tržby z parkovania) – rozšírená reprodukcia.", "zdroj": "Prednáška Investície, sl. 6" },
+          { "text": "Marketingová podpora a vybavenie pre otvorenie novej linky do Barcelony", "spravne": "Rozvojová", "vysvetlenie": "Investícia do nových trhov – cieľom je získať postavenie na novom trhu a nové tržby.", "zdroj": "Prednáška Investície, sl. 7" },
+          { "text": "Výmena svietidiel vzletovej dráhy za LED s rovnakou funkciou a nižšou spotrebou", "spravne": "Obnovovacia", "vysvetlenie": "Lákavá chyba: úspora nákladov neznamená rozvoj. Obnovovacie investície často práve znižujú náklady alebo zvyšujú efektívnosť, kapacita sa však nemení.", "zdroj": "Prednáška Investície, sl. 25" }
+        ]
+      }
+    },
+    {
+      "id": "a2",
+      "nazov": "Koľko naozaj stojí hangár?",
+      "typ": "vypocet",
+      "minuty": 12,
+      "forma": "dvojice",
+      "ciel": "Zostaviť kapitálový výdavok a ročný peňažný príjem projektu podľa princípov plánovania peňažných tokov.",
+      "zadanie": "Konzultant poslal podklady k hangáru. Niektoré čísla do výpočtu patria, iné sú pasca. Vypočítajte K, ročný peňažný príjem a dobu návratnosti.",
+      "teoria": "K = I + O − P ± D (obstaranie majetku + trvalý prírastok ČPK − predaj nahrádzaného majetku ± daňové efekty). Utopené náklady sa nezapočítavajú. Ročný peňažný príjem = zisk po zdanení + odpisy; úroky z úveru sa neodpočítavajú (cenu kapitálu obsahuje diskontná sadzba).",
+      "prakticky_prinos": "Presne takúto kalkuláciu chce vidieť banka pri žiadosti o investičný úver aj dozorná rada letiska. Najčastejšie chyby v praxi: započítanie už zaplatených štúdií a dvojité započítanie úrokov.",
+      "zdroje": ["Prednáška Investície, sl. 34–41"],
+      "debrief": [
+        "Ktoré číslo z podkladov bolo pasca a prečo?",
+        "Prečo pripočítavame odpisy späť, keď sú to náklady?"
+      ],
+      "poznamky": "0–1 min zadanie. 1–8 min výpočet (kalkulačka v mobile). 8–10 min Mentimeter: zadávanie K – ukáže, koľkí započítali štúdiu 80 tis. €. 10–12 min postup na plátne. Pasce: štúdia uskutočniteľnosti 80 tis. € (utopený náklad), úroky 90 tis. € (neodpočítavajú sa), daň zo zisku pri predaji starej haly (zvyšuje K).",
+      "menti": [
+        { "typ": "Quiz – napíš odpoveď", "otazka": "Kapitálový výdavok K hangáru (tis. €)?", "moznosti": [], "spravna": "4042", "poznamka": "ukážte aj nesprávne odpovede 4122 (štúdia) a 4000 (bez dane)" },
+        { "typ": "Multiple choice", "otazka": "Ktoré číslo ste z výpočtu vyradili?", "moznosti": ["štúdiu 80 tis. €", "úroky 90 tis. €", "obe", "žiadne"], "spravna": "obe", "poznamka": "bez správnej odpovede na plátne, vyhodnoťte ústne" }
+      ],
+      "data": {
+        "situacia": "Podklady k hangáru (všetko v tis. €): stavba a vybavenie 4 200; trvalý prírastok zásob náhradných dielov a pohľadávok (ČPK) 300; predaj starej haly 500, jej zostatková cena je 300; štúdia uskutočniteľnosti zaplatená minulý rok 80. Ročne: prírastok tržieb 1 450, prírastok prevádzkových nákladov bez odpisov 620, odpisy 420 (10 rokov), úroky z investičného úveru 90. Sadzba dane z príjmov 21 %.",
+        "tabulka": {
+          "hlavicka": ["Položka", "tis. €"],
+          "riadky": [
+            ["Stavba a vybavenie hangáru (I)", "4 200"],
+            ["Trvalý prírastok ČPK (O)", "300"],
+            ["Predaj starej haly (P) / zostatková cena", "500 / 300"],
+            ["Štúdia uskutočniteľnosti (minulý rok)", "80"],
+            ["Prírastok tržieb ročne", "1 450"],
+            ["Prírastok prevádzkových nákladov bez odpisov ročne", "620"],
+            ["Odpisy ročne", "420"],
+            ["Úroky z úveru ročne", "90"]
+          ]
+        },
+        "otazky": [
+          { "text": "Kapitálový výdavok K", "spravne": 4042, "tolerancia": 1, "jednotka": "tis. €", "napoveda": "Zisk z predaja starej haly (500 − 300) sa zdaní – daň zvyšuje K. Minuloročná štúdia je utopený náklad.", "postup": ["Daň zo zisku pri predaji haly: (500 − 300) × 0,21 = 42", "K = I + O − P + D = 4 200 + 300 − 500 + 42 = 4 042", "Štúdia 80 sa nezapočíta – je to utopený náklad"] },
+          { "text": "Ročný peňažný príjem z projektu", "spravne": 743.9, "tolerancia": 1, "jednotka": "tis. €", "napoveda": "Zisk pred zdanením = tržby − prevádzkové náklady − odpisy (úroky nie). Potom zdaňte a odpisy pripočítajte späť.", "postup": ["Zisk pred zdanením = 1 450 − 620 − 420 = 410", "Zisk po zdanení = 410 × (1 − 0,21) = 323,9", "Peňažný príjem = 323,9 + 420 = 743,9", "Úroky 90 sa neodpočítavajú – cena kapitálu je v diskontnej sadzbe"] },
+          { "text": "Doba návratnosti (K / ročný peňažný príjem)", "spravne": 5.43, "tolerancia": 0.05, "jednotka": "roka", "napoveda": "Vydeľte K ročným peňažným príjmom.", "postup": ["4 042 / 743,9 = 5,43 roka"] }
+        ]
+      }
+    },
+    {
+      "id": "a3",
+      "nazov": "Investičná komisia: hangár, alebo fotovoltika?",
+      "typ": "rozhodnutie",
+      "minuty": 15,
+      "forma": "dvojice",
+      "ciel": "Rozhodnúť medzi vzájomne sa vylučujúcimi projektmi, zvoliť financovanie a zohľadniť riziko.",
+      "zadanie": "Hangár aj fotovoltika sa dajú postaviť len na tom istom pozemku – projekty sa vylučujú. Ako finančný tím prejdite 4 rozhodnutia komisie a obhájte ich teóriou.",
+      "teoria": "Statické metódy (doba návratnosti) ignorujú čas a peňažné toky po návratnosti. NPV meria, o koľko projekt zvýši hodnotu podniku – pri vylučujúcich sa projektoch rozhoduje najvyššia NPV. Riziko možno premietnuť nepriamo zvýšením diskontnej sadzby.",
+      "prakticky_prinos": "Takto vyzerá zasadnutie investičnej komisie alebo dozornej rady: projekty sa porovnávajú podľa viacerých ukazovateľov a manažér musí vedieť obhájiť, prečo rozhoduje NPV a nie „rýchla návratnosť“, ako zložiť financovanie a ako zohľadniť riziko.",
+      "zdroje": ["Prednáška Investície, sl. 24, 37, 51, 59–62"],
+      "debrief": [
+        "Kedy by bol index rentability lepším kritériom ako NPV?",
+        "Prečo banka nefinancuje 100 % investície a čo to hovorí o riziku?",
+        "Hangár má NPV kladnú aj pri 11 %. Čo by ste urobili, keby vyšla záporná?"
+      ],
+      "poznamky": "0–2 min zadanie (projekty sa vylučujú – zdôrazniť). 2–10 min rozhodovanie. Mentimeter PRED riešením: hlasovanie o projekte (očakávajte veľa hlasov pre fotovoltiku kvôli návratnosti a IR). 10–15 min riešenie a debrief. Čísla: hangár K 4 042, CF 743,9 × 10 r., ČPK 300 sa uvoľní v 10. roku; NPV 8 % = 1 088,6; NPV 11 % = 444,7. Fotovoltika I 1 500, CF 345 × 8 r., NPV 8 % = 482,6.",
+      "menti": [
+        { "typ": "Multiple choice", "otazka": "Ktorý projekt odporučíte komisii?", "moznosti": ["Hangár", "Fotovoltika"], "spravna": "Hangár", "poznamka": "spustiť PRED odhalením riešenia, výsledky ukázať až po hlasovaní" },
+        { "typ": "Open ended", "otazka": "Jednou vetou: prečo rozhoduje NPV, a nie doba návratnosti?", "moznosti": [], "spravna": "", "poznamka": "prečítajte 2–3 najlepšie odpovede" }
+      ],
+      "data": {
+        "pribeh": "Diskontná sadzba letiska je 8 %. Hangár má peňažné toky z predchádzajúcej aktivity; na konci 10. roka sa uvoľní ČPK 300 tis. €. Fotovoltika: investícia 1 500 tis. €, úspora a predaj energie 345 tis. € ročne počas 8 rokov. Letisko má 1 800 tis. € vlastných zdrojov (nerozdelený zisk a odpisy).",
+        "tabulka": {
+          "hlavicka": ["Ukazovateľ", "Hangár", "Fotovoltika"],
+          "riadky": [
+            ["Kapitálový výdavok (tis. €)", "4 042", "1 500"],
+            ["Ročný peňažný príjem (tis. €)", "743,9 (10 r.)", "345 (8 r.)"],
+            ["Doba návratnosti", "5,43 r.", "4,35 r."],
+            ["Index rentability", "1,27", "1,32"],
+            ["NPV pri 8 % (tis. €)", "1 088,6", "482,6"]
+          ]
+        },
+        "ukazovatele": { "Vlastné zdroje (tis. €)": 1800, "Zadlženosť (%)": 40, "Riziko (1–5)": 3 },
+        "kroky": [
+          {
+            "situacia": "Riaditeľ: „Fotovoltika sa vráti o rok skôr a má vyšší index rentability. Berme ju.“",
+            "otazka": "Ktorý projekt odporučíte?",
+            "moznosti": [
+              { "text": "Fotovoltiku – kratšia doba návratnosti", "body": 0, "dosledok": "Doba návratnosti je statická metóda: ignoruje časovú hodnotu peňazí aj peňažné toky po návratnosti. Hangár prináša príjmy ešte ďalších 4,6 roka." },
+              { "text": "Fotovoltiku – vyšší index rentability", "body": 1, "dosledok": "Index rentability je dynamický, ale relatívny ukazovateľ. Hodí sa na poradie nezávislých projektov pri obmedzenom kapitáli. Pri vylučujúcich sa projektoch však rozhoduje absolútny prírastok hodnoty, teda NPV." },
+              { "text": "Hangár – vyššia NPV", "body": 3, "dosledok": "Správne. Projekty sa vylučujú, preto vyberáme ten, ktorý zvýši hodnotu letiska najviac: 1 088,6 vs. 482,6 tis. €. Rozdiel 606 tis. € je hodnota, o ktorú by letisko prišlo kvôli „rýchlej návratnosti“." }
+            ]
+          },
+          {
+            "situacia": "Komisia schválila hangár (4 042 tis. €). Banka ponúka investičný úver do 70 % nákladov s úrokom 5,5 %.",
+            "otazka": "Ako zložíte financovanie?",
+            "moznosti": [
+              { "text": "Celé úverom – vlastné zdroje si necháme", "body": 0, "dosledok": "Banky obvykle neposkytujú investičný úver v plnej výške – podnik musí časť kryť z iných zdrojov. Ponuka je do 70 %, takže takúto žiadosť banka zamietne.", "zmeny": { "Zadlženosť (%)": 12, "Riziko (1–5)": 2 } },
+              { "text": "Asi 30 % z vlastných zdrojov (nerozdelený zisk a odpisy), 70 % investičný úver", "body": 3, "dosledok": "Správne. Interné zdroje (nerozdelený zisk, odpisy) nezvyšujú finančné riziko. Úver pokryje zvyšok v rámci ponuky banky. Letisku zostane rezerva asi 590 tis. € na likviditu.", "zmeny": { "Vlastné zdroje (tis. €)": -1213, "Zadlženosť (%)": 8, "Riziko (1–5)": 1 } },
+              { "text": "Všetko z vlastných zdrojov", "body": 0, "dosledok": "Nedá sa: vlastné zdroje sú 1 800 tis. € a chýba 2 242 tis. €. Aj keby stačili, letisko by prišlo o celú rezervu likvidity – porušenie magického trojuholníka.", "zmeny": { "Vlastné zdroje (tis. €)": -1800, "Riziko (1–5)": 2 } },
+              { "text": "Emisia nových kmeňových akcií", "body": 1, "dosledok": "Kmeňové akcie sú trvalý zdroj a neznižujú likviditu. Pri letisku vlastnenom krajom by však zmenili vlastnícku štruktúru a vlastný kapitál je drahší ako úver (úrok je daňovo odpočítateľný). Pre takýto projekt nevhodné.", "zmeny": { "Zadlženosť (%)": -5 } }
+            ]
+          },
+          {
+            "situacia": "Analytik upozorňuje: dopyt externých dopravcov po údržbe je neistý, dvaja klienti ešte nepodpísali zmluvy.",
+            "otazka": "Ako zohľadníte riziko?",
+            "moznosti": [
+              { "text": "Zvýšime diskontnú sadzbu o rizikovú prirážku na 11 % a prepočítame NPV", "body": 3, "dosledok": "Správne – nepriame premietnutie rizika. NPV pri 11 % = 444,7 tis. €, teda stále kladná. Projekt zvyšuje hodnotu aj po zohľadnení rizika, bezpečnostná rezerva NPV sa však zmenšila o 644 tis. €.", "zmeny": { "Riziko (1–5)": -1 } },
+              { "text": "Netreba nič – NPV je kladná", "body": 0, "dosledok": "NPV pri 8 % neobsahuje špecifické riziko projektu. Ignorovanie rizika je najčastejšia príčina zlyhania investícií v prevádzkovej fáze.", "zmeny": { "Riziko (1–5)": 1 } },
+              { "text": "Projekt radšej zrušíme", "body": 1, "dosledok": "Príliš opatrné – podinvestovanie: podnik prichádza o ziskovú príležitosť. Riziko treba kvantifikovať, nie sa mu automaticky vyhnúť.", "zmeny": { "Riziko (1–5)": -1 } }
+            ]
+          },
+          {
+            "situacia": "Konzultant navrhuje „pre istotu“ pripočítať ku K štúdiu za 80 tis. € a od ročných príjmov odpočítať úroky 90 tis. €.",
+            "otazka": "Ako zareagujete?",
+            "moznosti": [
+              { "text": "Súhlasím s oboma – sme konzervatívni", "body": 0, "dosledok": "Nie je to konzervatívnosť, ale chyba. Štúdia je utopený náklad a úroky by boli započítané dvakrát (sú už v diskontnej sadzbe). Projekt by vyzeral horšie, než je." },
+              { "text": "Iba úroky, štúdiu nie", "body": 1, "dosledok": "Štúdiu správne vynechávate. Úroky sa však neodpočítavajú: efekt projektu sa určuje nezávisle od štruktúry financovania a cena cudzieho kapitálu je už v diskontnej sadzbe." },
+              { "text": "Nesúhlasím ani s jedným", "body": 3, "dosledok": "Správne. Relevantné sú len výdavky vyvolané rozhodnutím o projekte (nie utopené náklady) a úroky patria do diskontnej sadzby, nie do peňažných tokov." }
+            ]
+          }
+        ],
+        "zaver": "Hangár (NPV 1 088,6 tis. € pri 8 %, 444,7 tis. € pri 11 %) financovaný asi 30 % vlastných zdrojov a 70 % investičným úverom, s rizikom zohľadneným v diskontnej sadzbe. Doba návratnosti a index rentability sú doplnkové informácie, nie rozhodovacie kritérium pri vylučujúcich sa projektoch."
+      }
+    },
+    {
+      "id": "a4",
+      "nazov": "Od nápadu po likvidáciu: životný cyklus hangáru",
+      "typ": "poradie",
+      "minuty": 8,
+      "forma": "individuálne",
+      "ciel": "Zoradiť kroky investičného projektu do fáz životného cyklu a pochopiť, kde sa rozhoduje o úspechu.",
+      "zadanie": "Zoraďte 8 krokov projektu hangáru od prvého po posledný.",
+      "teoria": "Životný cyklus projektu: predinvestičná fáza (príležitosť, predbežná a technicko-ekonomická štúdia) → investičná fáza (zadanie, dokumentácia, výstavba, skúšobná prevádzka) → prevádzková fáza → ukončenie a likvidácia.",
+      "prakticky_prinos": "Väčšina problémov v prevádzke má príčinu v podcenenej predinvestičnej fáze. Finančný manažér musí vedieť, kedy ktoré čísla vznikajú a kedy sa ešte dá projekt zastaviť lacno.",
+      "zdroje": ["Prednáška Investície, sl. 27–31"],
+      "debrief": [
+        "V ktorej fáze je najlacnejšie projekt zastaviť?",
+        "Prečo musia peňažné toky zahŕňať aj fázu likvidácie?"
+      ],
+      "poznamky": "0–1 min zadanie. 1–5 min zoraďovanie. 5–6 min Mentimeter Ranking (porovnať priemerné poradie sály so správnym). 6–8 min riešenie. Najčastejšie sa prehadzuje predbežná a podrobná technicko-ekonomická štúdia a skúšobná prevádzka s výstavbou.",
+      "menti": [
+        { "typ": "Ranking", "otazka": "Zoraďte fázy: predinvestičná, investičná, prevádzková, likvidácia", "moznosti": ["Investičná fáza", "Likvidácia", "Predinvestičná fáza", "Prevádzková fáza"], "spravna": "Predinvestičná → Investičná → Prevádzková → Likvidácia", "poznamka": "rozcvička pred riešením" }
+      ],
+      "data": {
+        "polozky": [
+          { "text": "Identifikácia príležitosti: dopyt dopravcov po údržbe na letisku", "vysvetlenie": "Predinvestičná fáza – hľadanie podnikateľskej príležitosti." },
+          { "text": "Predbežná technicko-ekonomická štúdia (hrubý odhad nákladov a dopytu)", "vysvetlenie": "Predinvestičná fáza – medzistupeň, ktorý rýchlo vyradí nereálne nápady." },
+          { "text": "Technicko-ekonomická štúdia, výpočet NPV a schválenie komisiou", "vysvetlenie": "Predinvestičná fáza – podklad pre investičné a finančné rozhodnutie." },
+          { "text": "Zadanie stavby a projektová dokumentácia", "vysvetlenie": "Investičná fáza – právny, finančný a organizačný základ realizácie." },
+          { "text": "Výstavba hangáru", "vysvetlenie": "Investičná fáza – čerpanie kapitálových výdavkov." },
+          { "text": "Skúšobná prevádzka a uvedenie do prevádzky", "vysvetlenie": "Koniec investičnej fázy – overenie, že zariadenie funguje podľa projektu." },
+          { "text": "Prevádzka: porovnávanie skutočných peňažných tokov s plánom", "vysvetlenie": "Prevádzková fáza – kontrola a následné hodnotenie projektu." },
+          { "text": "Ukončenie prevádzky, predaj majetku a likvidačné náklady", "vysvetlenie": "Posledná fáza – príjmy z likvidácie a náklady na ňu vstupujú do peňažných tokov projektu." }
+        ]
+      }
+    },
+    {
+      "id": "a5",
+      "nazov": "Správca rezervy letiska: magický trojuholník v praxi",
+      "typ": "simulacia",
+      "minuty": 12,
+      "forma": "individuálne",
+      "ciel": "Pocítiť kompromis medzi výnosom, rizikom a likviditou pri správe voľných prostriedkov.",
+      "zadanie": "Spravujete rezervu letiska 2 000 000 € počas 4 rokov. Každý rok ju rozdeľte medzi 4 možnosti. Udalosť roka uvidíte až po rozhodnutí. Na konci zadajte výsledok do Mentimetra.",
+      "teoria": "Magický trojuholník investovania: výnos, riziko a likvidita. Neexistuje investícia s maximom vo všetkých troch. Konzervatívna stratégia uprednostňuje nízke riziko, agresívna vysoký výnos, stratégia likvidity rýchlu premenu na peniaze. Diverzifikácia znižuje riziko.",
+      "prakticky_prinos": "Finančný manažér letiska rozhoduje o dočasne voľných prostriedkoch (rezervy, prostriedky pred čerpaním investície). Musí zarobiť, ale hlavne mať peniaze vtedy, keď ich letisko potrebuje.",
+      "zdroje": ["Prednáška Investície, sl. 16–22"],
+      "debrief": [
+        "Kto vyhral a akou stratégiou? Bolo to rozhodnutie, alebo šťastie?",
+        "Čo sa v roku 3 stalo s tými, ktorí mali veľa v nelikvidnom aktíve?",
+        "Ktorá stratégia je vhodná pre rezervu verejného letiska a prečo?"
+      ],
+      "poznamky": "0–1 min zadanie. 1–8 min simulácia. 8–10 min Mentimeter: interval konečnej hodnoty + stratégia. 10–12 min riešenie. Výnosy sú pre všetkých rovnaké. Bez znalosti budúcnosti: najlepšie dopadli dlhopisy (2,38 mil.), rovnomerné rozdelenie 2,31 mil., akcie 2,31 mil. s prepadom −22 % v 2. roku. S dokonalou predvídavosťou by sa dalo dosiahnuť 3,13 mil. – ukážte ako „efekt spätného pohľadu“.",
+      "menti": [
+        { "typ": "Multiple choice", "otazka": "Aká je tvoja konečná hodnota rezervy?", "moznosti": ["menej ako 2,2 mil. €", "2,2 – 2,35 mil. €", "2,35 – 2,6 mil. €", "viac ako 2,6 mil. €"], "spravna": "", "poznamka": "bez správnej odpovede" },
+        { "typ": "Multiple choice", "otazka": "Akú stratégiu si prevažne použil/a?", "moznosti": ["konzervatívnu", "agresívnu", "likviditu", "diverzifikovanú"], "spravna": "", "poznamka": "porovnajte s výsledkami" }
+      ],
+      "data": {
+        "pravidla": "Rezerva letiska 2 000 000 €. Na začiatku každého roka rozdeľte 100 % medzi 4 možnosti (po 5 %). Potom sa ukáže udalosť roka a výnosy. Výnosy sú pre všetkých rovnaké.",
+        "kapital": 2000000,
+        "jednotka": "€",
+        "aktiva": [
+          { "nazov": "Termínovaný vklad", "popis": "nízky výnos, minimálne riziko, vysoká likvidita" },
+          { "nazov": "Štátne dlhopisy SR", "popis": "nižší výnos, nízke riziko, dobrá likvidita; cena rastie, keď klesajú úrokové sadzby" },
+          { "nazov": "Akcie leteckých spoločností", "popis": "vysoký možný výnos, vysoké riziko, vysoká likvidita" },
+          { "nazov": "Podiel v developerskom projekte letiskovej zóny", "popis": "rast hodnoty, stredné riziko, veľmi nízka likvidita" }
+        ],
+        "kola": [
+          { "nazov": "Rok 1", "udalost": "Rekordná letná sezóna: dopyt po letenkách +8 %, aerolinky hlásia rekordné zisky.", "vynosy": [3, 4, 18, 6] },
+          { "nazov": "Rok 2", "udalost": "Cena kerozínu vyskočila o 40 % a štrajky riadiacich letovej prevádzky ochromili Európu. Akcie aeroliniek padajú.", "vynosy": [3, 5, -22, 4] },
+          { "nazov": "Rok 3", "udalost": "Letisko potrebuje okamžite peniaze na havarijnú opravu dráhy. Podiel v developerskom projekte sa musí predať narýchlo so zľavou.", "vynosy": [2.5, 3, 10, -12] },
+          { "nazov": "Rok 4", "udalost": "ECB znižuje úrokové sadzby, ekonomika rastie a ceny nehnuteľností pri letisku stúpajú.", "vynosy": [1.5, 6, 14, 15] }
+        ],
+        "hodnotenie": [
+          { "od": 0, "text": "Prepad – riziko na nesprávnom mieste" },
+          { "od": 2200000, "text": "Konzervatívny správca" },
+          { "od": 2350000, "text": "Vyvážený stratég" },
+          { "od": 2600000, "text": "Investičný jasnovidec (alebo šťastie?)" }
+        ],
+        "poucenie": "Žiadna stratégia nevyhráva vždy. Diverzifikácia zmiernila prepad akcií v roku 2. V roku 3 sa ukázalo, že nelikvidné aktívum je drahé práve vtedy, keď potrebujete peniaze – likvidita je tretí vrchol trojuholníka. Pre rezervu verejného letiska je vhodná konzervatívna stratégia s dôrazom na likviditu."
+      }
+    }
+  ],
+  "test_otazky": [
+    { "otazka": "Letisko musí kvôli novému nariadeniu EÚ inštalovať systém zachytávania glykolu. Ide o investíciu:", "moznosti": ["rozvojovú", "obnovovaciu", "mandatórnu (regulátornú)", "finančnú"], "spravna": 2, "vysvetlenie": "Investícia vyvolaná legislatívou bez priameho peňažného prínosu je mandatórna.", "zdroj": "Prednáška Investície, sl. 25" },
+    { "otazka": "Ktorá položka sa NEzapočítava do kapitálového výdavku projektu?", "moznosti": ["trvalý prírastok čistého pracovného kapitálu", "štúdia uskutočniteľnosti zaplatená v minulom roku", "daň zo zisku z predaja nahrádzaného majetku", "výdavky na obstaranie dlhodobého majetku"], "spravna": 1, "vysvetlenie": "Už zaplatená štúdia je utopený náklad – rozhodnutie o projekte ho nezmení.", "zdroj": "Prednáška Investície, sl. 35" },
+    { "otazka": "Prečo sa pri výpočte peňažného príjmu z projektu pripočítavajú odpisy k zisku po zdanení?", "moznosti": ["odpisy sú príjem podniku", "odpisy sú náklad, ale nie výdavok", "odpisy zvyšujú daň", "odpisy sú súčasťou úrokov"], "spravna": 1, "vysvetlenie": "Odpisy znížili zisk aj daň, ale peniaze neodtiekli, preto sa pripočítajú späť.", "zdroj": "Prednáška Investície, sl. 34" },
+    { "otazka": "Úroky z úveru na financovanie projektu sa pri hodnotení projektu metódou NPV:", "moznosti": ["odpočítajú od ročných peňažných príjmov", "pripočítajú ku kapitálovému výdavku", "neodpočítavajú, lebo cena kapitálu je v diskontnej sadzbe", "započítajú len v prvom roku"], "spravna": 2, "vysvetlenie": "Efekt projektu sa určuje nezávisle od financovania; inak by sa cena kapitálu započítala dvakrát.", "zdroj": "Prednáška Investície, sl. 37" },
+    { "otazka": "Pri dvoch vzájomne sa vylučujúcich projektoch vyberieme projekt s:", "moznosti": ["najkratšou dobou návratnosti", "najvyšším indexom rentability", "najvyššou čistou súčasnou hodnotou", "najnižším kapitálovým výdavkom"], "spravna": 2, "vysvetlenie": "NPV vyjadruje absolútny prírastok hodnoty podniku; pri vylučujúcich sa projektoch maximalizujeme hodnotu.", "zdroj": "Prednáška Investície, sl. 24, 62" },
+    { "otazka": "Nepriame premietnutie rizika do hodnotenia projektu znamená:", "moznosti": ["zvýšenie diskontnej sadzby o rizikovú prirážku", "zrušenie projektu", "výpočet doby návratnosti", "zníženie kapitálového výdavku"], "spravna": 0, "vysvetlenie": "Diskontná sadzba sa upraví o riziko a projekt sa hodnotí jednou veličinou – NPV.", "zdroj": "Prednáška Investície, sl. 59" },
+    { "otazka": "Ktorá dvojica tvorí spolu s výnosom magický trojuholník investovania?", "moznosti": ["riziko a likvidita", "inflácia a dane", "zisk a odpisy", "úrok a dividenda"], "spravna": 0, "vysvetlenie": "Výnos, riziko a likvidita – žiadna investícia nedosahuje maximum vo všetkých troch.", "zdroj": "Prednáška Investície, sl. 16" },
+    { "otazka": "Investičné úvery banky pri financovaní investície obvykle:", "moznosti": ["pokrývajú 100 % nákladov", "neposkytujú v plnej výške – časť musí podnik kryť inak", "nevyžadujú preukázanie návratnosti", "sa nemusia zaisťovať"], "spravna": 1, "vysvetlenie": "Banka vyžaduje preukázanie návratnosti, zaistenie a spoluúčasť podniku.", "zdroj": "Prednáška Investície, sl. 51" }
+  ]
+}
+
+</script>
+<script>
+(function(){
+"use strict";
+var raw = document.getElementById('lesson-data').textContent.trim();
+var D;
+try { D = JSON.parse(raw); } catch(e) { document.getElementById('app').textContent = 'Chyba: dáta aktivít sa nepodarilo načítať.'; return; }
+var app = document.getElementById('app');
+var TYPE_LABEL = {triedenie:'Triedenie', pravda_nepravda:'Pravda / nepravda', poradie:'Zoradenie', rozhodnutie:'Prípadová štúdia', vypocet:'Výpočet v praxi', simulacia:'Simulácia'};
+var FORMA = {"individuálne":"👤 individuálne","dvojice":"👥 vo dvojici","skupiny 3–4":"👥 skupina 3–4"};
+
+document.getElementById('hdr-sub').textContent = (D.predmet || 'Finančné plánovanie') + (D.tema_cislo ? ' · Téma ' + D.tema_cislo : '');
+document.getElementById('hdr-title').textContent = D.tema || '';
+document.title = (D.tema || 'Aktivity') + ' – aktivity';
+
+function h(tag, attrs){
+  var el = document.createElement(tag);
+  if (attrs) for (var k in attrs){
+    var v = attrs[k]; if (v == null || v === false) continue;
+    if (k === 'class') el.className = v;
+    else if (k === 'text') el.textContent = v;
+    else if (k.slice(0,2) === 'on') el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? '' : v);
+  }
+  for (var i = 2; i < arguments.length; i++) add(el, arguments[i]);
+  return el;
+}
+function add(el, c){ if (c == null || c === false) return; if (Array.isArray(c)) { c.forEach(function(x){ add(el, x); }); return; } el.appendChild(typeof c === 'string' || typeof c === 'number' ? document.createTextNode(String(c)) : c); }
+function clear(el){ while (el.firstChild) el.removeChild(el.firstChild); }
+function fmt(n, dec){ if (typeof n !== 'number' || !isFinite(n)) return String(n); return n.toLocaleString('sk-SK', {minimumFractionDigits: dec||0, maximumFractionDigits: dec==null?2:dec}); }
+function shuffle(a){ a = a.slice(); for (var i = a.length - 1; i > 0; i--){ var j = Math.floor(Math.random()*(i+1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function parseNum(s){ s = String(s).replace(/\s| /g,'').replace(',', '.'); if (s === '' || isNaN(Number(s))) return null; return Number(s); }
+function store(k, v){ try { if (v === undefined) return JSON.parse(localStorage.getItem('fpakt:'+(D.tema_cislo||'')+':'+k)); localStorage.setItem('fpakt:'+(D.tema_cislo||'')+':'+k, JSON.stringify(v)); } catch(e){ return null; } }
+function srcLine(s){ return s ? h('div', {class:'src', text:'Zdroj: ' + s}) : null; }
+function table(t){
+  if (!t || !t.hlavicka) return null;
+  var isNum = function(s){ return /^[\s\-–+]?[\d\s.,]+\s*(%|€|tis\.?|mil\.?)?[\s€.]*$/.test(String(s)); };
+  return h('div', {class:'tbl'}, h('table', null,
+    h('thead', null, h('tr', null, t.hlavicka.map(function(c){ return h('th', {text:c}); }))),
+    h('tbody', null, (t.riadky||[]).map(function(r){ return h('tr', null, r.map(function(c, i){ return h('td', {class: i>0 && isNum(c) ? 'n' : null, text:c}); })); }))
+  ));
+}
+
+/* ---------- menu ---------- */
+function menu(){
+  clear(app);
+  if (D._ukazka) app.appendChild(h('div', {class:'fb mid', style:'margin-top:12px'}, h('b', {text:'Ukážka šablóny. '}), 'Toto je vzor so všetkými typmi aktivít. Aktivity pre študentov sú v súbore aktivity.html v priečinku prednášky (Aktivity\\T.. – …).'));
+  app.appendChild(h('h1', {text: 'Praktické aktivity'}));
+  if (D.kontext) app.appendChild(h('div', {class:'card'}, h('div', {class:'muted', text:'Príbeh dnešnej hodiny'}), h('p', {text: D.kontext})));
+  (D.aktivity||[]).forEach(function(a, i){
+    var best = store(a.id);
+    app.appendChild(h('button', {class:'tile', onclick: function(){ go(a.id); }},
+      h('span', {class:'num', text: String(i+1)}),
+      h('span', null, h('b', {text: a.nazov}), h('div', {class:'meta', text: (TYPE_LABEL[a.typ]||a.typ) + ' · ' + (a.minuty||'') + ' min · ' + (FORMA[a.forma]||a.forma||'')})),
+      best ? h('span', {class:'done-badge', text: '✓ ' + best}) : null
+    ));
+  });
+  app.appendChild(h('footer', {text: 'Funguje bez prihlásenia. Odpovede sa nikam neodosielajú – výsledok zadáš do Mentimetra.'}));
+  window.scrollTo(0,0);
+}
+
+/* ---------- activity shell ---------- */
+function activity(a, idx){
+  clear(app);
+  app.appendChild(h('button', {class:'back', onclick: function(){ go(''); }}, '← Všetky aktivity'));
+  app.appendChild(h('div', null,
+    h('span', {class:'pill', text: 'Aktivita ' + (idx+1)}), h('span', {class:'pill', text: TYPE_LABEL[a.typ]||a.typ}),
+    h('span', {class:'pill', text: '⏱ ' + (a.minuty||'') + ' min'}), a.forma ? h('span', {class:'pill', text: FORMA[a.forma]||a.forma}) : null));
+  app.appendChild(h('h1', {text: a.nazov}));
+  if (a.ciel) app.appendChild(h('p', null, h('b', {text:'Cieľ: '}), a.ciel));
+  if (a.zadanie) app.appendChild(h('div', {class:'card'}, h('b', {text:'Zadanie: '}), a.zadanie));
+  if (a.teoria) app.appendChild(h('details', {class:'theory'}, h('summary', {text:'Pripomenutie teórie'}), h('p', {text:a.teoria})));
+  var body = h('div'); app.appendChild(body);
+  var R = RENDER[a.typ];
+  if (!R) { body.textContent = 'Neznámy typ aktivity: ' + a.typ; return; }
+  R(a, a.data || {}, body, function(score, max, label){ finish(a, body, score, max, label); });
+  window.scrollTo(0,0);
+}
+function finish(a, body, score, max, label){
+  var txt = label || (score + ' / ' + max);
+  store(a.id, txt);
+  var box = h('div', {class:'card'},
+    h('div', {class:'muted', text:'Tvoj výsledok'}), h('div', {class:'score', text: txt}),
+    a.prakticky_prinos ? h('p', null, h('b', {text:'Na čo je to v praxi: '}), a.prakticky_prinos) : null,
+    (a.zdroje && a.zdroje.length) ? h('div', {class:'src', text:'Zdroje: ' + a.zdroje.join('; ')}) : null
+  );
+  body.appendChild(box);
+  if (a.menti && a.menti.length){
+    body.appendChild(h('div', {class:'menti'},
+      h('b', {text:'Teraz hlasuj v Mentimetri'}),
+      h('p', null, 'Otvor ', h('b', {text:'menti.com'}), D.menti_kod ? ' a zadaj kód:' : ' – kód je na plátne.'),
+      D.menti_kod ? h('div', {class:'code', text: D.menti_kod}) : null,
+      h('p', {class:'muted', text: a.typ === 'simulacia' ? 'Priprav si svoj konečný výsledok – budeš ho zadávať.' : 'Odpovedz podľa toho, ako si riešil/a aktivitu.'})
+    ));
+  }
+  body.appendChild(h('div', {class:'row'},
+    h('button', {class:'btn', onclick: function(){ activity(a, D.aktivity.indexOf(a)); }}, '↻ Skúsiť znova'),
+    h('button', {class:'btn', onclick: function(){ go(''); }}, 'Späť na zoznam')));
+  box.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+var RENDER = {};
+
+/* ---------- triedenie / pravda_nepravda ---------- */
+function classify(items, cats, getRight, onDone){
+  return function(a, d, body, done){
+    var list = shuffle(items(d)), choice = {}, cards = [];
+    var check = h('button', {class:'btn primary', disabled:true, onclick: evaluate}, 'Vyhodnotiť');
+    var counter = h('span', {class:'muted'});
+    function upd(){ var n = Object.keys(choice).length; counter.textContent = n + ' / ' + list.length + ' zaradených'; check.disabled = n < list.length; }
+    list.forEach(function(it, i){
+      var chips = cats(d).map(function(c){
+        var b = h('button', {class:'chip', onclick: function(){ if (check.dataset.done) return; choice[i] = c; chips.forEach(function(x){ x.classList.toggle('sel', x.textContent === c); }); upd(); }}, c);
+        return b;
+      });
+      var card = h('div', {class:'card item'}, h('div', {text: it.text}), h('div', {class:'chips'}, chips));
+      cards.push({card:card, chips:chips, it:it}); body.appendChild(card);
+    });
+    body.appendChild(h('div', {class:'row'}, check, counter)); upd();
+    function evaluate(){
+      check.dataset.done = '1'; check.disabled = true; var ok = 0;
+      cards.forEach(function(c, i){
+        var right = getRight(c.it), good = choice[i] === right; if (good) ok++;
+        c.card.classList.add(good ? 'ok' : 'ko');
+        c.chips.forEach(function(x){ x.classList.remove('sel'); if (x.textContent === right) x.classList.add('right'); else if (x.textContent === choice[i]) x.classList.add('wrong'); x.disabled = true; });
+        c.card.appendChild(h('div', {class:'fb ' + (good?'ok':'ko')}, h('b', {text: good ? '✓ Správne. ' : '✗ Správne je: ' + right + '. '}), c.it.vysvetlenie || ''));
+        add(c.card, srcLine(c.it.zdroj));
+      });
+      done(ok, cards.length);
+    }
+  };
+}
+RENDER.triedenie = classify(function(d){ return d.polozky||[]; }, function(d){ return d.kategorie||[]; }, function(it){ return it.spravne; });
+RENDER.pravda_nepravda = classify(function(d){ return d.tvrdenia||[]; }, function(){ return ['Pravda','Nepravda']; }, function(it){ return it.pravda ? 'Pravda' : 'Nepravda'; });
+
+/* ---------- poradie ---------- */
+RENDER.poradie = function(a, d, body, done){
+  var correct = d.polozky || [], order = shuffle(correct.map(function(_, i){ return i; }));
+  if (order.every(function(v, i){ return v === i; }) && order.length > 1) order.reverse();
+  var finished = false, holder = h('div', {class:'order'}); body.appendChild(h('p', {class:'muted', text:'Zoraď položky šípkami od prvého kroku po posledný.'})); body.appendChild(holder);
+  function draw(){
+    clear(holder); var ol = h('ol');
+    order.forEach(function(ci, pos){
+      var cls = 'txt' + (finished ? (ci === pos ? ' ok' : ' ko') : '');
+      ol.appendChild(h('li', null, h('span', {class:'num', text:String(pos+1)}), h('div', {class:cls}, correct[ci].text,
+        finished && ci !== pos ? h('div', {class:'src', text:'Správna pozícia: ' + (ci+1)}) : null),
+        finished ? null : h('div', {class:'mv'},
+          h('button', {'aria-label':'Posunúť vyššie', disabled: pos===0, onclick: function(){ var t = order[pos-1]; order[pos-1] = order[pos]; order[pos] = t; draw(); }}, '▲'),
+          h('button', {'aria-label':'Posunúť nižšie', disabled: pos===order.length-1, onclick: function(){ var t = order[pos+1]; order[pos+1] = order[pos]; order[pos] = t; draw(); }}, '▼'))));
+    });
+    holder.appendChild(ol);
+  }
+  draw();
+  var btn = h('button', {class:'btn primary', onclick: function(){
+    finished = true; btn.remove(); draw();
+    var ok = order.filter(function(ci, pos){ return ci === pos; }).length;
+    var exp = h('div', {class:'card'}, h('b', {text:'Správne poradie'}), h('ol', null, correct.map(function(it){ return h('li', null, h('b', {text: it.text}), it.vysvetlenie ? h('div', {class:'muted', text: it.vysvetlenie}) : null); })));
+    body.appendChild(exp); done(ok, correct.length);
+  }}, 'Vyhodnotiť');
+  body.appendChild(h('div', {class:'row'}, btn));
+};
+
+/* ---------- rozhodnutie ---------- */
+RENDER.rozhodnutie = function(a, d, body, done){
+  var kpi = {}, k; for (k in (d.ukazovatele||{})) kpi[k] = Number(d.ukazovatele[k]);
+  var steps = d.kroky || [], total = 0, max = 0;
+  if (d.pribeh) body.appendChild(h('div', {class:'card'}, h('p', {text: d.pribeh}), table(d.tabulka)));
+  else if (d.tabulka) body.appendChild(table(d.tabulka));
+  var kpiBox = h('div', {class:'kpis'}); body.appendChild(kpiBox);
+  function drawKpi(changes){
+    clear(kpiBox);
+    Object.keys(kpi).forEach(function(name){
+      var ch = changes && changes[name], dt = ch ? (ch > 0 ? ' ▲' + fmt(ch) : ' ▼' + fmt(-ch)) : '';
+      kpiBox.appendChild(h('div', {class:'kpi'}, name, h('b', null, fmt(kpi[name]), dt ? h('small', {style:'color:var(' + (ch>0?'--ok':'--bad') + ');font-size:13px', text: dt}) : null)));
+    });
+  }
+  drawKpi();
+  var prog = h('div', {class:'progress'}, h('span', {style:'width:0%'})); body.appendChild(prog);
+  var stage = h('div'); body.appendChild(stage);
+  function step(i){
+    prog.firstChild.style.width = (100*i/steps.length) + '%';
+    if (i >= steps.length){
+      body.appendChild(h('div', {class:'card'}, h('b', {text:'Zhrnutie prípadu'}), h('p', {text: d.zaver || ''})));
+      done(total, max); return;
+    }
+    var s = steps[i], best = Math.max.apply(null, s.moznosti.map(function(o){ return Number(o.body)||0; })); max += best;
+    var card = h('div', {class:'card'}, h('div', {class:'muted', text:'Rozhodnutie ' + (i+1) + ' z ' + steps.length}),
+      s.situacia ? h('p', {text: s.situacia}) : null, h('h2', {style:'margin-top:6px', text: s.otazka}));
+    var btns = s.moznosti.map(function(o){
+      return h('button', {class:'opt', onclick: function(){
+        btns.forEach(function(b){ b.disabled = true; }); this.classList.add('chosen');
+        var p = Number(o.body)||0; total += p;
+        if (o.zmeny) for (var n in o.zmeny){ if (!(n in kpi)) kpi[n] = 0; kpi[n] = Math.round((kpi[n] + Number(o.zmeny[n]))*100)/100; }
+        drawKpi(o.zmeny);
+        var cls = p >= best ? 'ok' : (p > 0 ? 'mid' : 'ko');
+        card.appendChild(h('div', {class:'fb ' + cls}, h('span', {class:'pts', text: '+' + p + ' b. '}), o.dosledok || ''));
+        if (p < best){ var bo = s.moznosti.filter(function(x){ return (Number(x.body)||0) === best; })[0]; if (bo) card.appendChild(h('div', {class:'src', text:'Najlepšia voľba: ' + bo.text})); }
+        card.appendChild(h('div', {class:'row', style:'margin-top:10px'}, h('button', {class:'btn primary', onclick: function(){ this.remove(); step(i+1); }}, i+1 < steps.length ? 'Ďalšie rozhodnutie →' : 'Zobraziť výsledok')));
+      }}, o.text);
+    });
+    add(card, btns); stage.appendChild(card); card.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  step(0);
+};
+
+/* ---------- vypocet ---------- */
+RENDER.vypocet = function(a, d, body, done){
+  if (d.situacia || d.tabulka) body.appendChild(h('div', {class:'card'}, d.situacia ? h('p', {text: d.situacia}) : null, table(d.tabulka)));
+  var qs = d.otazky || [], state = qs.map(function(){ return {tries:0, ok:false, closed:false}; }), score = 0;
+  qs.forEach(function(q, i){
+    var inp = h('input', {type:'text', inputmode:'decimal', placeholder:'výsledok', 'aria-label': q.text});
+    var fbBox = h('div');
+    var chk = h('button', {class:'btn primary small', onclick: check}, 'Skontrolovať');
+    var show = h('button', {class:'btn small', onclick: reveal}, 'Ukáž postup');
+    var card = h('div', {class:'card'}, h('b', {text: (i+1) + '. ' + q.text}),
+      h('div', {class:'row', style:'margin-top:8px'}, inp, h('span', {text: q.jednotka || ''})), h('div', {class:'row', style:'margin-top:8px'}, chk, show), fbBox);
+    inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+    body.appendChild(card);
+    function check(){
+      var st = state[i]; if (st.closed) return; var v = parseNum(inp.value);
+      if (v === null){ fbBox.replaceChildren(h('div', {class:'fb mid', text:'Zadaj číslo (desatinná čiarka aj bodka sú v poriadku).'})); return; }
+      st.tries++; var tol = q.tolerancia != null ? Number(q.tolerancia) : Math.abs(q.spravne)*0.01;
+      if (Math.abs(v - q.spravne) <= tol){ st.ok = true; if (st.tries === 1) score++; close('ok', '✓ Správne' + (st.tries > 1 ? ' (na ' + st.tries + '. pokus)' : '') + '. '); }
+      else if (st.tries >= 2) close('ko', '✗ Správny výsledok: ' + fmt(q.spravne) + ' ' + (q.jednotka||'') + '. ');
+      else fbBox.replaceChildren(h('div', {class:'fb ko'}, '✗ Zatiaľ nie. ', q.napoveda ? h('span', null, h('b', {text:'Nápoveda: '}), q.napoveda) : 'Skús to ešte raz.'));
+    }
+    function reveal(){ if (!state[i].closed){ state[i].tries = Math.max(state[i].tries, 1); close('mid', 'Správny výsledok: ' + fmt(q.spravne) + ' ' + (q.jednotka||'') + '. '); } }
+    function close(cls, msg){
+      var st = state[i]; st.closed = true; inp.disabled = true; chk.disabled = true; show.disabled = true;
+      fbBox.replaceChildren(h('div', {class:'fb ' + cls}, h('b', {text: msg}), (q.postup && q.postup.length) ? h('ol', {style:'margin:6px 0 0;padding-left:20px'}, q.postup.map(function(s){ return h('li', {text:s}); })) : null));
+      if (state.every(function(s){ return s.closed; })) done(score, qs.length, score + ' / ' + qs.length + ' na prvý pokus');
+    }
+  });
+};
+
+/* ---------- simulacia ---------- */
+RENDER.simulacia = function(a, d, body, done){
+  var assets = d.aktiva || [], rounds = d.kola || [], unit = d.jednotka || '€', start = Number(d.kapital) || 1000000;
+  var value = start, history = [start], r = 0, allocs = [];
+  body.appendChild(h('div', {class:'card'}, h('p', {text: d.pravidla || ''}),
+    h('ul', {style:'margin:6px 0;padding-left:20px'}, assets.map(function(x){ return h('li', null, h('b', {text: x.nazov}), x.popis ? ' – ' + x.popis : ''); }))));
+  var status = h('div', {class:'kpis'}); body.appendChild(status);
+  var stage = h('div'); body.appendChild(stage);
+  function drawStatus(){ clear(status); status.appendChild(h('div', {class:'kpi'}, 'Hodnota portfólia', h('b', {text: fmt(Math.round(value)) + ' ' + unit}))); status.appendChild(h('div', {class:'kpi'}, 'Kolo', h('b', {text: Math.min(r+1, rounds.length) + ' / ' + rounds.length}))); }
+  function roundUI(){
+    drawStatus();
+    if (r >= rounds.length) return end();
+    var R = rounds[r], pct = assets.map(function(){ return Math.floor(100/assets.length/5)*5; });
+    pct[0] += 100 - pct.reduce(function(s, x){ return s + x; }, 0);
+    var card = h('div', {class:'card'}, h('h2', {style:'margin-top:0', text: R.nazov + ': rozdeľ portfólio'}));
+    var sumEl = h('div', {class:'sum'}), go = h('button', {class:'btn primary', onclick: commit}, 'Potvrdiť rozhodnutie');
+    var rows = assets.map(function(x, i){
+      var lab = h('span', {class:'pct'}), rng = h('input', {type:'range', min:0, max:100, step:5, value: pct[i], 'aria-label': x.nazov});
+      rng.addEventListener('input', function(){ pct[i] = Number(rng.value); upd(); });
+      return {lab:lab, rng:rng, el: h('div', {class:'alloc'}, h('span', {text:x.nazov}), lab, rng)};
+    });
+    function upd(){ var s = pct.reduce(function(t, x){ return t + x; }, 0); rows.forEach(function(rw, i){ rw.lab.textContent = pct[i] + ' %'; });
+      sumEl.textContent = 'Spolu: ' + s + ' %' + (s !== 100 ? ' – musí byť presne 100 %' : ' ✓'); sumEl.className = 'sum ' + (s === 100 ? 'good' : 'bad'); go.disabled = s !== 100; }
+    rows.forEach(function(rw){ card.appendChild(rw.el); });
+    card.appendChild(sumEl);
+    card.appendChild(h('div', {class:'row', style:'margin-top:8px'}, go, h('button', {class:'btn small', onclick: function(){ var e = Math.floor(100/assets.length); rows.forEach(function(rw, i){ pct[i] = i === 0 ? 100 - e*(assets.length-1) : e; rw.rng.value = pct[i]; }); upd(); }}, 'Rovnomerne')));
+    upd(); stage.appendChild(card); card.scrollIntoView({behavior:'smooth', block:'start'});
+    function commit(){
+      rows.forEach(function(rw){ rw.rng.disabled = true; }); go.remove();
+      var before = value, gain = 0, lines = [];
+      assets.forEach(function(x, i){ var part = before * pct[i]/100, ret = Number((R.vynosy||[])[i])||0, g = part * ret/100; gain += g;
+        lines.push(h('tr', null, h('td', {text:x.nazov}), h('td', {class:'n', text: pct[i] + ' %'}), h('td', {class:'n', text: (ret>0?'+':'') + fmt(ret,1) + ' %'}), h('td', {class:'n', text: (g>=0?'+':'') + fmt(Math.round(g))}))); });
+      value = before + gain; history.push(value); allocs.push(pct.slice());
+      card.appendChild(h('div', {class:'fb ' + (gain >= 0 ? 'ok' : 'ko')}, h('b', {text:'Udalosť: '}), R.udalost || ''));
+      card.appendChild(h('div', {class:'tbl'}, h('table', null, h('thead', null, h('tr', null, h('th', {text:'Aktívum'}), h('th', {class:'n', text:'Podiel'}), h('th', {class:'n', text:'Výnos'}), h('th', {class:'n', text:'Zisk/strata ' + unit}))), h('tbody', null, lines))));
+      card.appendChild(h('p', {class:'big', text: 'Nová hodnota: ' + fmt(Math.round(value)) + ' ' + unit + ' (' + (gain>=0?'+':'') + fmt(gain/before*100,1) + ' %)'}));
+      r++; drawStatus();
+      card.appendChild(h('div', {class:'row'}, h('button', {class:'btn primary', onclick: function(){ this.remove(); roundUI(); }}, r < rounds.length ? 'Ďalšie kolo →' : 'Výsledok simulácie')));
+    }
+  }
+  function end(){
+    var band = null; (d.hodnotenie||[]).slice().sort(function(x, y){ return x.od - y.od; }).forEach(function(b){ if (value >= b.od) band = b; });
+    var alt = assets.map(function(x, i){ var v = start; rounds.forEach(function(R){ v *= 1 + (Number((R.vynosy||[])[i])||0)/100; }); return {n:x.nazov, v:v}; });
+    var card = h('div', {class:'card'}, h('div', {class:'muted', text:'Konečná hodnota portfólia'}),
+      h('div', {class:'score', text: fmt(Math.round(value)) + ' ' + unit}),
+      h('p', {text: 'Zhodnotenie: ' + (value>=start?'+':'') + fmt((value/start-1)*100, 1) + ' %' + (band ? ' · ' + band.text : '')}),
+      chart(history),
+      h('b', {text:'Pre porovnanie – keby si celý čas držal/a iba jedno aktívum:'}),
+      h('div', {class:'tbl'}, h('table', null, h('tbody', null, alt.map(function(x){ return h('tr', null, h('td', {text:x.n}), h('td', {class:'n', text: fmt(Math.round(x.v)) + ' ' + unit})); })))),
+      d.poucenie ? h('div', {class:'fb mid'}, h('b', {text:'Poučenie: '}), d.poucenie) : null);
+    stage.appendChild(card);
+    done(0, 0, fmt(Math.round(value)) + ' ' + unit);
+  }
+  function chart(vals){
+    var W = 320, H = 120, pad = 24, mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals); if (mx === mn){ mx += 1; mn -= 1; }
+    var pts = vals.map(function(v, i){ return [pad + i*(W-2*pad)/Math.max(1, vals.length-1), H - pad - (v-mn)/(mx-mn)*(H-2*pad)]; });
+    var ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg'); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('class', 'chart'); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', 'Vývoj hodnoty portfólia');
+    var base = document.createElementNS(ns, 'line'); var y0 = H - pad - (start-mn)/(mx-mn)*(H-2*pad); base.setAttribute('x1', pad); base.setAttribute('x2', W-pad); base.setAttribute('y1', y0); base.setAttribute('y2', y0); base.setAttribute('stroke', 'var(--line)'); base.setAttribute('stroke-dasharray', '4 4'); svg.appendChild(base);
+    var pl = document.createElementNS(ns, 'polyline'); pl.setAttribute('points', pts.map(function(p){ return p.join(','); }).join(' ')); pl.setAttribute('fill', 'none'); pl.setAttribute('stroke', 'var(--accent)'); pl.setAttribute('stroke-width', '2.5'); svg.appendChild(pl);
+    pts.forEach(function(p, i){ var c = document.createElementNS(ns, 'circle'); c.setAttribute('cx', p[0]); c.setAttribute('cy', p[1]); c.setAttribute('r', 3.5); c.setAttribute('fill', 'var(--accent)'); svg.appendChild(c);
+      var t = document.createElementNS(ns, 'text'); t.setAttribute('x', p[0]); t.setAttribute('y', H-6); t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-size', '10'); t.setAttribute('fill', 'var(--ink2)'); t.textContent = i === 0 ? 'štart' : (rounds[i-1] ? rounds[i-1].nazov : ''); svg.appendChild(t); });
+    return svg;
+  }
+  roundUI();
+};
+
+/* ---------- router ---------- */
+function go(id){
+  var before = location.hash;
+  try { location.hash = id || ''; } catch(e) {}
+  if (location.hash === before || location.hash.replace('#','') !== (id || '')) route(id || '');
+}
+function route(force){
+  var id = typeof force === 'string' ? force : (location.hash || '').replace('#', ''), list = D.aktivity || [];
+  for (var i = 0; i < list.length; i++) if (list[i].id === id) return activity(list[i], i);
+  menu();
+}
+window.addEventListener('hashchange', function(){ route(); });
+route();
+})();
+</script>
+</body>
+</html>
